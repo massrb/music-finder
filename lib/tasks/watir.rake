@@ -37,10 +37,18 @@ class Updater
     end
   end
 
-  def send_emails
+  def send_emails(tag)
     br = @browser
-    email = Email.where.missing(:mailings).first
-    Profile.all.each do |prof|
+    if tag 
+      email = Email.where(tag: tag).first
+      profiles = Profile.where.not(id: 
+                         Profile.joins(:emails)
+                         .where(emails: { tag:  }).select(:id))
+    else
+      email = Email.where.missing(:mailings).first
+      profiles = profiles.all
+    end   
+    profiles.each do |prof|
       br.goto prof.url
       br.link(id: 'btn-contact').click
       br.text_field(id: 'contact-subject').set(email.subject)
@@ -86,11 +94,14 @@ namespace :watir do
     sleep 10
   end
 
-  task send_emails: :environment do
+  # use backslashses to send argument
+  # rake watir:send_emails\['chelmsford_drum'\]
+  task :send_emails, [:email_tag] => :environment do |t, args|
+    tag = args[:email_tag].to_s
     upd = Updater.new
     sleep 2
     upd.sign_in
-    upd.send_emails
+    upd.send_emails(tag)
     sleep 10
   end
 
