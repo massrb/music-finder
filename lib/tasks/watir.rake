@@ -20,6 +20,37 @@ class Updater
     br.button(type: 'submit').click 
   end
 
+  def verify_profiles
+    br = @browser
+    Profile.all.each do |prof|
+      puts "ID:#{prof.id}"
+      puts prof.url
+      br.goto prof.url
+      location = br.element(tag_name: 'strong', class: 'location').text
+      usr = br.element(tag_name: 'strong', class: 'user').text
+      music = br.element(tag_name: 'strong', class: 'music').text
+      img_src = br.element(tag_name: 'img', id: 'profile_image').attribute_values[:src]
+      puts 'src:' + img_src.to_s
+      puts 'text: ' + location.to_s + ' - ' + usr.to_s + ' - ' + music.to_s
+      puts "===================="
+      sleep 1
+    end
+  end
+
+  def send_emails
+    br = @browser
+    email = Email.where.missing(:mailings).first
+    Profile.all.each do |prof|
+      br.goto prof.url
+      br.link(id: 'btn-contact').click
+      br.text_field(id: 'contact-subject').set(email.subject)
+      br.textarea(id: 'contact-message').set(email.body)
+      br.button(type: 'submit').click
+      Mailing.create(email: email, profile: prof)
+      sleep 5
+    end
+  end
+
   def update_profiles
     br = @browser
     Profile.all.each do |prof|
@@ -38,15 +69,28 @@ class Updater
 end
 
 namespace :watir do
-  desc "TODO"
-  task update_data: :environment do    
-
-    upd = Updater.new    
+  desc "Update profiles"
+  task update_data: :environment do
+    upd = Updater.new
     sleep 2
     upd.sign_in
-    upd.update_profiles   
-    puts 'click'
-   
+    upd.update_profiles
+    sleep 10
+  end
+
+  task verify_data: :environment do
+    upd = Updater.new
+    sleep 2
+    upd.sign_in
+    upd.verify_profiles
+    sleep 10
+  end
+
+  task send_emails: :environment do
+    upd = Updater.new
+    sleep 2
+    upd.sign_in
+    upd.send_emails
     sleep 10
   end
 

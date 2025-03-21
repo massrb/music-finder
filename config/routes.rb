@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :emails
   get "profile/show"
   get "profile/index"
   get "profile/destroy"
@@ -16,6 +17,7 @@ Rails.application.routes.draw do
   # Defines the root path route ("/")
   # root "posts#index"
   Rails.application.routes.draw do
+  resources :emails
     resources :profiles, only: [:index]
     post '/api', to: 'api#create'
   end
