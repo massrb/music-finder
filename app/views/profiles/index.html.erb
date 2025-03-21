@@ -1,0 +1,22 @@
+<h1>Musician Profiles</h1>
+
+<!-- Filter Dropdown -->
+<%= form_with url: profiles_path, method: :get, local: true do |form| %>
+  <label for="instrument">Filter by Instrument:</label>
+  <%= form.select :instrument, options_for_select(@instruments, params[:instrument]), { include_blank: "All" } %>
+  <%= form.submit "Filter" %>
+<% end %>
+
+<!-- Profiles Grid -->
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; margin-top: 20px;">
+  <% @profiles.each do |profile| %>
+    <div style="border: 1px solid #ddd; padding: 15px; text-align: center; border-radius: 10px; box-shadow: 2px 2px 5px rgba(0,0,0,0.1);">
+      <%= image_tag(profile.thumbnail, size: "100x100") if profile.image.attached? %>
+      <h3><%= link_to profile.title, profile.url, target: "_blank" %>
+      <p><strong>Gender:</strong> <%= profile&.gender&.capitalize %></p>
+      <p><strong>Age:</strong> <%= profile&.age %></p>
+      <p><strong>Instrument:</strong> <%= profile&.instrument&.capitalize %></p>
+      <%= check_box_tag 'status', profile.selected, profile.selected, class: 'profile-checkbox', data: { id: profile.id } %>
+    </div>
+  <% end %>
+</div>

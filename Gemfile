@@ -61,3 +61,13 @@ group :test do
   gem "capybara"
   gem "selenium-webdriver"
 end
+
+group :development, :test do
+  gem 'rspec-rails', ">= 7.1.0"
+  gem 'shoulda-matchers', require: false
+end
+
+gem "watir-rails"
+gem 'webdrivers'
+gem 'mini_magick'
+gem "image_processing", "~> 1.2"
